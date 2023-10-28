@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "sha256.h"
 
+//print unsigned char chain in hexa
 void printh(BYTE* word, int n){
     char outword[n*2+1];
     int i, len;
@@ -15,6 +16,7 @@ void printh(BYTE* word, int n){
     for(i = 0; i<len; i++){
         sprintf(outword+i*2, "%02X", word[i]);
     }
+
     printf("%s\n", outword);
 }
 
@@ -27,6 +29,7 @@ int main(int argc, char **argv){
     }
     if(argc > 3){
         printf("Please input two arguments.\n./RBFGen m n\n");
+        return 1;
     }
 
     //instanciate bloom filter
@@ -48,8 +51,7 @@ int main(int argc, char **argv){
         sha256_init(&ctx);
         sha256_update(&ctx, ip, strlen(ip));
         sha256_final(&ctx, buf);
-        printh(buf, SHA256_BLOCK_SIZE-1);
-        choose[i] = (*buf%1048576)%2;
+        choose[i] = buf[SHA256_BLOCK_SIZE-1]%2;
     }
 
     //add malicous IPs to filter
@@ -66,19 +68,22 @@ int main(int argc, char **argv){
             sha256_final(&ctx, buf);
 
             //set that bit to true
-            bloom[(*buf%1048576)%m] = 1;
+            hodl = (buf[SHA256_BLOCK_SIZE-3]%16)*256*256+buf[SHA256_BLOCK_SIZE-2]*256+buf[SHA256_BLOCK_SIZE-1];
+            bloom[hodl%m] = 1;
 
         }
     }
 
     //open or create output.txt file
     FILE * fp;
-    fp = fopen(argv[2], "w");
+    char fn [256];
+    sprintf(fn, "Results/%s", argv[2]);
+    fp = fopen(fn, "w");
     for(int i = 0; i < m; i++){
-        if(choose[i]){
-            fputc('1', fp);
-        } else {
+        if(choose[i] == bloom[i]){
             fputc('0', fp);
+        } else {
+            fputc('1', fp);
         }
     }
     fclose(fp);

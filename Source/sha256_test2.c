@@ -7,7 +7,7 @@ void printh(BYTE* word, int n){
     char outword[n*2+1];
     int i, len;
 
-    len = strlen(word);
+    len = SHA256_BLOCK_SIZE;
     if(word[len-1]=='\n')
         word[--len] = '\0';
 
@@ -18,15 +18,26 @@ void printh(BYTE* word, int n){
 }
 
 int main(){
-    BYTE text1[] = {"abc"};
-    BYTE buf[SHA256_BLOCK_SIZE];
 
-    SHA256_CTX ctx;
-    sha256_init(&ctx);
-	sha256_update(&ctx, text1, strlen(text1));
-	sha256_final(&ctx, buf);
+    for(int i = 0; i < 10; i++){
 
-    printh(buf, SHA256_BLOCK_SIZE);
+        char b [3];
+        sprintf(b, "%02d", i);
+        BYTE buf[SHA256_BLOCK_SIZE];
+
+        SHA256_CTX ctx;
+        sha256_init(&ctx);
+        sha256_update(&ctx, b, strlen(b));
+        sha256_final(&ctx, buf);
+
+        printh(buf, SHA256_BLOCK_SIZE);
+        //int c = buf[SHA256_BLOCK_SIZE-2]*256+buf[SHA256_BLOCK_SIZE-1];
+        int c = (buf[SHA256_BLOCK_SIZE-3]%16)*256*256+buf[SHA256_BLOCK_SIZE-2]*256+buf[SHA256_BLOCK_SIZE-1];
+        printf("%d\n", c);
+        unsigned char a = buf[SHA256_BLOCK_SIZE-1];
+        printf("mod 2: %d\n", a%2);
+
+    }
 
     return 0;
 }
