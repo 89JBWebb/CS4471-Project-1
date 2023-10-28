@@ -1,5 +1,5 @@
 make:
-	gcc Source/RBFGen.c -o RBFGen
+	gcc Source/RBFGen.c Source/sha256.c -o RBFGen
 	gcc Source/IPCheck.c -o IPCheck
 clean:
 	rm RBFGen IPCheck sha256_test sha256_test2 output.txt
