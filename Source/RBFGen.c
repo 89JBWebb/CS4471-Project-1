@@ -47,7 +47,7 @@ int main(int argc, char **argv){
         ip[5] = '\0';
         ip[6] = '\0';
         ip[7] = '\0';
-        sprintf(ip, "%02d", i);
+        sprintf(ip, "0%d", i);
         sha256_init(&ctx);
         sha256_update(&ctx, ip, strlen(ip));
         sha256_final(&ctx, buf);
